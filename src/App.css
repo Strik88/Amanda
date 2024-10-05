@@ -1,0 +1,163 @@
+:root {
+  --light-green: #C7E3D4;
+  --light-gray: #F0F0F0;
+  --white: #FFFFFF;
+  --dark-green: #5C9B7D; /* Een donkerdere groentint voor contrast */
+  --text-color: #333333; /* Een donkere grijstint voor tekst */
+  --soft-pink: #FFD1DC; /* Nieuwe zachte roze kleur */
+}
+
+body {
+  background-color: var(--white);
+  color: var(--text-color);
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.App {
+  text-align: center;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.title {
+  color: var(--dark-green);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: var(--text-color);
+  font-size: clamp(1rem, 3vw, 1.2rem);
+  margin-bottom: 20px;
+}
+
+.breathing-circle {
+  width: min(80vw, 300px);
+  height: min(80vw, 300px);
+  border-radius: 50%;
+  background-color: var(--light-green);
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.inner-circle {
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  background-color: var(--white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.countdown {
+  font-size: clamp(2rem, 10vw, 3.5rem);
+  font-weight: bold;
+  color: var(--dark-green);
+}
+
+button {
+  background-color: var(--light-green);
+  color: var(--dark-green);
+  border: none;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 5px;
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: var(--dark-green);
+  color: var(--white);
+}
+
+.settings-popup {
+  background-color: var(--light-gray);
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+input[type="number"] {
+  background-color: var(--white);
+  border: 1px solid var(--light-green);
+  padding: 5px;
+  border-radius: 3px;
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  width: 60px;
+}
+
+/* Donkere modus aanpassingen */
+.dark-mode {
+  background-color: #2C3E50;
+  color: var(--light-gray);
+}
+
+.dark-mode .breathing-circle {
+  background-color: var(--dark-green);
+}
+
+.dark-mode .inner-circle {
+  background-color: #34495E;
+}
+
+.dark-mode .countdown {
+  color: var(--light-green);
+}
+
+.dark-mode button {
+  background-color: var(--dark-green);
+  color: var(--light-gray);
+}
+
+.dark-mode button:hover {
+  background-color: var(--light-green);
+  color: var(--dark-green);
+}
+
+@media (max-width: 480px) {
+  .App {
+    padding: 10px;
+  }
+
+  button {
+    padding: 8px 16px;
+    margin: 5px;
+  }
+
+  .settings-popup {
+    padding: 15px;
+  }
+}
+
+select {
+  background-color: var(--light-green);
+  color: var(--dark-green);
+  border: none;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+select:hover {
+  background-color: var(--dark-green);
+  color: var(--white);
+}
