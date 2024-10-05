@@ -256,11 +256,11 @@ function App() {
   const getFaseInstructie = useCallback(() => {
     switch (fase) {
       case 'inademen':
-        return 'Adem in...';
+        return 'Adem in door je neus...';
       case 'vasthouden':
         return 'Hou vast...';
       case 'uitademen':
-        return 'Adem uit...';
+        return 'Adem uit door je mond...';
       case 'pauze':
         return geselecteerdeOefening === "Vierkant ademen" ? 'Hou leeg...' : 'Adem uit...';
       default:
