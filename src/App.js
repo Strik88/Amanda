@@ -12,13 +12,15 @@ function App() {
   const [fase, setFase] = useState('inademen');
   const [aftellen, setAftellen] = useState(4);
   const [isActief, setIsActief] = useState(false);
-  const [inademTijd, setInademTijd] = useState(4);
-  const [vasthoudTijd, setVasthoudTijd] = useState(7);
-  const [uitademTijd, setUitademTijd] = useState(8);
+  const [inademTijd, setInademTijd] = useState('4');
+  const [vasthoudTijd, setVasthoudTijd] = useState('7');
+  const [uitademTijd, setUitademTijd] = useState('8');
   const [voortgang, setVoortgang] = useState(0);
   const [cycli, setCycli] = useState(0);
   const [sessieTijd, setSessieTijd] = useState(0);
-  const [sessieDuur, setSessieDuur] = useState(5 * 60); // 5 minuten standaard
+  const [sessieDuur, setSessieDuur] = useState(300); // 5 minuten als standaard
+  const [geselecteerdeSessieDuur, setGeselecteerdeSessieDuur] = useState('300');
+  const [aangepasteSessieDuur, setAangepasteSessieDuur] = useState('');
   const [isInstellingenOpen, setIsInstellingenOpen] = useState(false);
   const [tijdelijkeInstellingen, setTijdelijkeInstellingen] = useState({
     inademTijd: 4,
@@ -41,41 +43,31 @@ function App() {
 
   const [geselecteerdeOefening, setGeselecteerdeOefening] = useState("4-7-8 techniek");
 
+  const [techniek, setTechniek] = useState('burnout');
+
   const gaNaarVolgendeFase = useCallback(() => {
-    setFase(huidigeF => {
-      let nieuweFase;
-      let nieuweTijd;
-
-      switch (huidigeF) {
+    setFase(prevFase => {
+      switch (prevFase) {
         case 'inademen':
-          nieuweFase = 'vasthouden';
-          nieuweTijd = vasthoudTijd;
-          break;
+          setAftellen(Number(vasthoudTijd));
+          return 'vasthouden';
         case 'vasthouden':
-          nieuweFase = 'uitademen';
-          nieuweTijd = uitademTijd;
-          break;
+          setAftellen(Number(uitademTijd));
+          return 'uitademen';
         case 'uitademen':
-          nieuweFase = 'pauze';
-          nieuweTijd = pauzetijd;
+          setAftellen(Number(pauzetijd));
           setIsPauze(true);
-          break;
+          return 'pauze';
         case 'pauze':
-          nieuweFase = 'inademen';
-          nieuweTijd = inademTijd;
+          setAftellen(Number(inademTijd));
           setIsPauze(false);
-          setCycli(c => c + 1);
-          break;
+          setCycli(prev => prev + 1);
+          return 'inademen';
         default:
-          nieuweFase = 'inademen';
-          nieuweTijd = inademTijd;
+          return 'inademen';
       }
-
-      console.log(`Fase verandert van ${huidigeF} naar ${nieuweFase}, Nieuwe tijd: ${nieuweTijd}`);
-      setAftellen(nieuweTijd);
-      setVoortgang(0);
-      return nieuweFase;
     });
+    setVoortgang(0);
   }, [inademTijd, uitademTijd, vasthoudTijd, pauzetijd]);
 
   const updateAdemhaling = useCallback((deltaTime) => {
@@ -278,6 +270,67 @@ function App() {
     resetAlles();
   };
 
+  const toggleInstellingen = () => {
+    setIsInstellingenOpen(prevState => !prevState);
+  };
+
+  const handleTijdVerandering = (setter) => (e) => {
+    const waarde = e.target.value;
+    if (waarde === '' || (Number(waarde) >= 0 && Number(waarde) <= 60)) {
+      setter(waarde);
+    }
+  };
+
+  const handleSessieDuurVerandering = (e) => {
+    const waarde = e.target.value;
+    setGeselecteerdeSessieDuur(waarde);
+    if (waarde === 'aangepast') {
+      setAangepasteSessieDuur('');
+    } else {
+      setSessieDuur(Number(waarde));
+      setAangepasteSessieDuur('');
+    }
+  };
+
+  const handleAangepasteSessieDuurVerandering = (e) => {
+    const waarde = e.target.value;
+    if (waarde === '' || (/^\d+$/.test(waarde) && Number(waarde) > 0 && Number(waarde) <= 120)) {
+      setAangepasteSessieDuur(waarde);
+      if (waarde !== '') {
+        setSessieDuur(Number(waarde) * 60); // Zet minuten om naar seconden
+      }
+    }
+  };
+
+  const handleTechniekVerandering = (e) => {
+    const nieuweTechniek = e.target.value;
+    setTechniek(nieuweTechniek);
+    
+    switch(nieuweTechniek) {
+      case 'burnout':
+        setInademTijd('4');
+        setVasthoudTijd('7');
+        setUitademTijd('8');
+        setPauzetijd('0.5');
+        break;
+      case 'vierkant':
+        setInademTijd('4');
+        setVasthoudTijd('4');
+        setUitademTijd('4');
+        setPauzetijd('4');
+        break;
+      case 'ontspanning':
+        setInademTijd('5');
+        setVasthoudTijd('10');
+        setUitademTijd('10');
+        setPauzetijd('0.5');
+        break;
+      default:
+        // Standaard waarden of laat de huidige waarden ongewijzigd
+        break;
+    }
+  };
+
   return (
     <div className={`App ${isDarkMode ? 'dark-mode' : ''}`}>
       <button onClick={toggleDarkMode} className="dark-mode-toggle">
@@ -314,77 +367,69 @@ function App() {
       <div className="controls">
         <button onClick={schakelActief}>{isActief ? 'Stop' : 'Start'}</button>
         <button onClick={resetAlles}>Reset</button>
-        <button onClick={openInstellingen}>Instellingen</button>
+        <button onClick={toggleInstellingen}>Instellingen</button>
       </div>
 
       {isInstellingenOpen && (
-        <div className="settings-overlay">
-          <div className="settings-popup">
-            <h3>Instellingen</h3>
-            <label>
-              Inademen:
-              <input 
-                type="number" 
-                value={tijdelijkeInstellingen.inademTijd} 
-                onChange={(e) => handleInputChange('inademTijd', e.target.value)} 
-                min="1" 
-              />
-            </label>
-            <label>
-              Vasthouden:
-              <input 
-                type="number" 
-                value={tijdelijkeInstellingen.vasthoudTijd} 
-                onChange={(e) => handleInputChange('vasthoudTijd', e.target.value)} 
-                min="0" 
-              />
-            </label>
-            <label>
-              Uitademen:
-              <input 
-                type="number" 
-                value={tijdelijkeInstellingen.uitademTijd} 
-                onChange={(e) => handleInputChange('uitademTijd', e.target.value)} 
-                min="1" 
-              />
-            </label>
-            <label>
-              Sessieduur:
-              <select 
-                value={tijdelijkeInstellingen.sessieDuur} 
-                onChange={(e) => setTijdelijkeInstellingen(prev => ({...prev, sessieDuur: e.target.value}))}
-              >
-                <option value="5">5 minuten</option>
-                <option value="10">10 minuten</option>
-                <option value="15">15 minuten</option>
-                <option value="custom">Aangepast</option>
-              </select>
-            </label>
-            {tijdelijkeInstellingen.sessieDuur === 'custom' && (
-              <label>
-                Aangepaste duur (minuten):
-                <input 
-                  type="number" 
-                  value={tijdelijkeInstellingen.aangepasteSessieDuur || ''} 
-                  onChange={(e) => setTijdelijkeInstellingen(prev => ({...prev, aangepasteSessieDuur: Number(e.target.value)}))}
-                  min="1"
-                />
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Instellingen</h2>
+            <div>
+              <label>Ademhalingstechniek: 
+                <select value={techniek} onChange={handleTechniekVerandering}>
+                  <option value="burnout" title="4-7-8-0.5 seconden">Burnout breathing</option>
+                  <option value="vierkant" title="4-4-4-4 seconden">Vierkant ademen</option>
+                  <option value="ontspanning" title="5-10-10-0.5 seconden">Ontspanning</option>
+                </select>
               </label>
-            )}
-            <div className="settings-buttons">
-              <button onClick={slaInstellingenOp}>Opslaan</button>
-              <button onClick={sluitInstellingen}>Annuleren</button>
             </div>
+            <div>
+              <label>Inademen tijd: <input type="text" value={inademTijd} onChange={(e) => setInademTijd(e.target.value)} /></label>
+            </div>
+            <div>
+              <label>Vasthouden tijd: <input type="text" value={vasthoudTijd} onChange={(e) => setVasthoudTijd(e.target.value)} /></label>
+            </div>
+            <div>
+              <label>Uitademen tijd: <input type="text" value={uitademTijd} onChange={(e) => setUitademTijd(e.target.value)} /></label>
+            </div>
+            <div>
+              <label>Pauze tijd: <input type="text" value={pauzetijd} onChange={(e) => setPauzetijd(e.target.value)} /></label>
+            </div>
+            <div>
+              <label>Sessie duur: 
+                <select 
+                  value={geselecteerdeSessieDuur}
+                  onChange={handleSessieDuurVerandering}
+                >
+                  <option value="180">3 minuten</option>
+                  <option value="300">5 minuten</option>
+                  <option value="600">10 minuten</option>
+                  <option value="900">15 minuten</option>
+                  <option value="aangepast">Aangepast</option>
+                </select>
+              </label>
+            </div>
+            {geselecteerdeSessieDuur === 'aangepast' && (
+              <div>
+                <label>Aangepaste duur (minuten): 
+                  <input 
+                    type="text" 
+                    value={aangepasteSessieDuur}
+                    onChange={handleAangepasteSessieDuurVerandering}
+                    placeholder="Voer minuten in"
+                  />
+                </label>
+              </div>
+            )}
+            <button onClick={toggleInstellingen}>Sluiten</button>
           </div>
         </div>
       )}
 
-      <select value={geselecteerdeOefening} onChange={(e) => veranderOefening(e.target.value)}>
-        {Object.keys(presetOefeningen).map((oefeningNaam) => (
-          <option key={oefeningNaam} value={oefeningNaam}>
-            {oefeningNaam}
-          </option>
-        ))}
+      <select value={techniek} onChange={handleTechniekVerandering}>
+        <option value="burnout" title="4-7-8-0.5 seconden">Burnout breathing</option>
+        <option value="vierkant" title="4-4-4-4 seconden">Vierkant ademen</option>
+        <option value="ontspanning" title="5-10-10-0.5 seconden">Ontspanning</option>
       </select>
     </div>
   );
