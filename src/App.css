@@ -161,3 +161,11 @@ select:hover {
   background-color: var(--dark-green);
   color: var(--white);
 }
+
+.message {
+  font-size: 1.2rem;
+  color: #4a4a4a;
+  margin-bottom: 20px;
+  font-style: italic;
+  text-align: center;
+}
