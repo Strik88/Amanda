@@ -262,7 +262,7 @@ function App() {
       case 'uitademen':
         return 'Adem uit door je mond...';
       case 'pauze':
-        return geselecteerdeOefening === "Vierkant ademen" ? 'Hou leeg...' : 'Adem uit...';
+        return geselecteerdeOefening === "Vierkant ademen" ? 'Hou leeg...' : 'Adem uit door je mond...';
       default:
         return '';
     }
@@ -285,6 +285,10 @@ function App() {
       </button>
       
       <h1 className="title">Lieve Amanda</h1>
+      <p className="message">
+        Adem rustig. Je bent veilig. Er wordt van je gehouden. Het wordt beter. Je bent sterker dan je denkt!
+      </p>
+      
       <h2 className="subtitle">{getFaseInstructie()}</h2>
       
       <div className="breathing-circle" style={getCirkelStijl()}>
